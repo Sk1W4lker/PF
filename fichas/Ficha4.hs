@@ -1,3 +1,4 @@
+module Ficha4 where
 import Data.Char (intToDigit)
 import Data.Char 
 {-

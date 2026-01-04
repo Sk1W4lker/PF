@@ -50,11 +50,7 @@ a) Relembre a t´ecnica de tupling e comece por definir uma fun¸c˜ao auxiliar 
 Use a fun¸c˜ao minRem para obter uma defini¸c˜ao alternativa da fun¸c˜ao deleteMin que percorre uma ´unica vez
 a lista de entrada.
 -}
-minRem :: Ord a => [a] -> (a, [a])
-minRem [x] = (x, [])
-minRem (x:xs) | x <= m    = (x, xs)
-              | otherwise = (m, x:rs)
-              where (m, rs) = minRem xs
+-
 
 {-
 b) Use a fun¸c˜ao minRem para definir uma fun¸c˜ao que ordena uma lista removendo as repeti¸c˜oes de elementos.

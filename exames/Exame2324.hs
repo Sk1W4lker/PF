@@ -115,8 +115,11 @@ Por exemplo, listaValores arv == [[20],[3,4],[9,3],[7,15]].
 -}
 listaValores :: BTree a -> [[a]]
 listaValores Empty = []
-listaValores tree = niveis [tree]
-    where niveis :: [BTree a] -> [[a]]
-          niveis [] = []
-          niveis nivelAtual = let valores = [x | Node x _ _ <- nivelAtual]
-                              in valores : niveis [subArv | Node _ esq dir <- nivelAtual, subArv <- [esq, dir], case subArv of Empty -> False; _ -> True]
+listaValores (Node x e d) =
+    [ [x] ] ++ junta (listaValores e) (listaValores d)
+
+-- junta níveis da esquerda e direita
+junta :: [[a]] -> [[a]] -> [[a]]
+junta [] ys = ys
+junta xs [] = xs
+junta (x:xs) (y:ys) = (x ++ y) : junta xs ys

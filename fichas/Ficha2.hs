@@ -1,4 +1,7 @@
+module Ficha2 where
 import Data.Char
+
+--Funçoes recursivas sobre listas
 
 --a)
 funA :: [Double] -> Double

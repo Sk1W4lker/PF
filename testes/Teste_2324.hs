@@ -10,6 +10,18 @@ alterna n a | n <= 0 = []
 
 data Turma = Empty | Node (Integer,String) Turma Turma
 
+turmaEx2 :: Turma
+turmaEx2 =
+    Node (15,"Duarte")
+        (Node (8,"Eva")
+            (Node (3,"Filipe") Empty Empty)
+            Empty
+        )
+        (Node (22,"Goncalo")
+            (Node (17,"Helena") Empty Empty)
+            Empty
+        )
+
 {-
 (a) Declare Turma como instˆancia da classe Show de forma a que a visualiza ̧c ̃ao da turma seja
 uma listagem da turma por ordem crescente de n«umero de aluno, com um registo por
@@ -54,14 +66,31 @@ n«umero de caracteres da palavra e da abreviatura «e maior). A fun ̧c ̃ao de
 a palavra e o n«umero de caracteres que foi reduzio.
 Por exemplo, difMaior [("muito","mt"), ("que","q")] == ("muito",3).-}
 
+{-
 difMaior :: TabAbrev -> (Palavra,Int)
-difMaior a = difMaiorAux ("",0) a 
+difMaior [(p,a)] = (p, length p - length a)
+difMaior ((p1,a1):t)
+    | (length p1 - length a1) >= y = (p1, length p1 - length a1)
+    | otherwise                    = (x,y)
+    where (x,y) = difMaior t
+-}
 
-difMaiorAux :: (Palavra,Int) -> TabAbrev -> (Palavra,Int)
-difMaiorAux n [] = n
-difMaiorAux (a,n) ((palav,abrev):t) | n < diff = difMaiorAux (palav,diff) t
-                                    | otherwise = difMaiorAux (a,n) t
-                                    where diff = ((length palav) - (length abrev))
+difMaior :: TabAbrev -> (Palavra,Int)
+difMaior (h:t) = difAux h t
+
+difAux :: (Palavra,Abreviatura) -> [(Palavra,Abreviatura)] -> (Palavra,Int)
+difAux (p,a) [] = (p,(length p - length a))
+difAux (p,a) ((p1,a1):t) | (length p - length a) >= (length p1 - length a1) = difAux (p,a) t
+                         | otherwise = difAux (p1,a1) t
+
+difMaior' :: TabAbrev -> (Palavra,Int)
+difMaior' a = difMaiorAux' ("",0) a 
+
+difMaiorAux' :: (Palavra,Int) -> TabAbrev -> (Palavra,Int)
+difMaiorAux' n [] = n
+difMaiorAux' (a,n) ((palav,abrev):t) | n < diff = difMaiorAux' (palav,diff) t
+                                     | otherwise = difMaiorAux' (a,n) t
+                                     where diff = ((length palav) - (length abrev))
 
 {-
 (b) Defina a fun ̧c ̃ao subst :: [String] -> TabAbrev -> [String] que recebe um texto
@@ -106,12 +135,15 @@ em que, para toda a «arvore lt se verifica que unDumpLT (dumpLT lt) == lt.
 N«umero: Nome: Curso:
 3
 -}
-unDumpLT :: [(a, Int)] -> LTree a
-unDumpLT = fst . buildTree 1
-    where buildTree :: Int -> [(a, Int)] -> (LTree a, [(a, Int)])
-          buildTree level [] = error "Lista vazia"
-          buildTree level ((x, l):xs) | l == level = (Tip x, xs)
-                                      | l > level = let (left, rest1) = buildTree (level + 1) ((x, l):xs)
-                                                        (right, rest2) = buildTree (level + 1) rest1
-                                                    in (Fork left right, rest2)
-                                      | otherwise = error "Nível inválido"
+unDumpLT :: [(a,Int)] -> LTree a
+unDumpLT l = fst (buildTree 1 l)
+
+buildTree :: Int -> [(a,Int)] -> (LTree a, [(a,Int)])
+buildTree _ [] = error "Lista vazia"
+buildTree level ((x,n):xs)
+    | n == level = (Tip x, xs)
+    | n > level  =
+        let (left,  rest1) = buildTree (level + 1) ((x,n):xs)
+            (right, rest2) = buildTree (level + 1) rest1
+        in (Fork left right, rest2)
+    | otherwise  = error "Nível inválido"

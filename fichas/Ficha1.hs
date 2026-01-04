@@ -179,14 +179,9 @@ data Figura = Circulo Ponto Double
 --a) testa se uma figura  ́e um pol ́ıgono
 poligono :: Figura -> Bool
 poligono (Circulo _ _) = False --circulos não são poligonos
-poligono (Retangulo p1 p2) = posx p1 /= posx p2 && posy p1 /= posy p2
-poligono (Triangulo p1 p2 p3) = posx p1 /= posx p2 ||
-                                posx p2 /= posx p3 ||
-                                posx p1 /= posx p3 
-                                &&
-                                posy p1 /= posy p2 ||
-                                posy p2 /= posy p3 ||
-                                posy p1 /= posy p3
+poligono (Retangulo p1 p2) = (posx p1 /= posx p2) && (posy p1 /= posy p2)
+poligono (Triangulo p1 p2 p3) =  (posx p1 /= posx p2 || posx p2 /= posx p3 || posx p1 /= posx p3) &&
+  (posy p1 /= posy p2 || posy p2 /= posy p3 || posy p1 /= posy p3)
 --b) calcula a lista dos vertices de uma figura.
 vertices :: Figura -> [Ponto]
 vertices (Circulo _ _) = []
@@ -220,8 +215,8 @@ isDigit1 :: Char -> Bool
 isDigit1 a = ord a >= ord '0' && ord a <= ord '9'
 
 --c) testa se um Char  ́e uma letra
-isAlpha1 :: Char -> Bool
-isAlpha1 a = ord a >= ord 'A' && ord a <= ord 'z'
+isAlpha :: Char -> Bool
+isAlpha ch = (ord ch >= ord 'a' && ord ch <= ord 'z') || (ord ch >= ord 'A' && ord ch <= ord 'Z')
 
 --d) converte uma letra para a respectiva mai ́uscula
 toUpper1 :: Char -> Char

@@ -81,13 +81,13 @@ intersperse1 l (h:t) | length (h:t) == 1 = [h]
 group1 :: Eq a => [a] -> [[a]]
 group1 [] = []
 group1 [x] = [[x]]
-group1 (h:t) | h == head (head (group1 t)) = (h : (head (group1 t))) : tail (group1 t) 
-             | otherwise = [h] : group1 t
+group1 (h:t) | h == head t = (h : (head (group1 t))) : tail (group1 t) -- a unica diferença de head t para head group t é que head t é 2 e head group t é [2]
+             | otherwise = [h] : group1 t 
 
 --12) > concat [[1],[2,2],[3],[4,4,4],[5],[4]] = [1,2,2,3,4,4,4,5,4]
 concat1 :: [[a]] -> [a]
 concat1 [] = []
-concat1 (h:t) = head h : concat1 t
+concat1 (h:t) = h ++ concat1 t
 
 --13) > inits [11,21,13] = [[],[11],[11,21],[11,21,13]]
 inits1 :: [a] -> [[a]]
@@ -223,9 +223,14 @@ intersect (h:t) l | h `elem` l = h : intersect t l
 
 --31) > insert 25 [1,20,30,40] = [1,20,25,30,40]
 inserte :: Ord a => a -> [a] -> [a]
-inserte n [] = []
-inserte n (h:t) | n > h && n < (head t) = h : n : inserte n t
+inserte n [] = [n]
+inserte n (h:t) | n < h = n : h : t
                 | otherwise = h : inserte n t
+
+inserte' :: Ord a => a -> [a] -> [a]
+inserte' n [] = []
+inserte' n (h:t) | n > h && n < (head t) = h : n : inserte' n t
+                 | otherwise = h : inserte' n t
 
 --32) > unwords ["Programacao", "Funcional"] = "Programacao Funcional"
 unwords1 :: [String] -> String
@@ -251,6 +256,11 @@ lookup1 a ((x,y):t) | a == x = Just y
                     | otherwise = lookup1 a t
 
 --36) > preCrescente [3,7,9,6,10,22] = [3,7,9]
+preCrescente :: Ord a => [a] -> [a]
+preCrescente [] = []
+preCrescente (h:t) | h > head t = [h]
+                   | otherwise = h : preCrescente (head t:t)
+
 preCrescente1 :: Ord a => [a] -> [a]
 preCrescente1 [] = []
 preCrescente1 [x] = [x]
@@ -290,10 +300,18 @@ insereMSet a ((x,y):t) | a == x = (x,y+1) : t
 
 --42) > removeMSet ’c’ [(’b’,2), (’a’,4), (’c’,1)] = [(’b’,2),(’a’,4)]
 removeMSet :: Eq a => a -> [(a,Int)] -> [(a,Int)]
+removeMSet n [] = []
+removeMSet n ((a,1):t) = removeMSet n t
+removeMSet n ((a,e):t) | n == a = (a,(e-1)) : t
+                       | otherwise = (a,e) : removeMSet n t
+
+{-
+removeMSet :: Eq a => a -> [(a,Int)] -> [(a,Int)]
 removeMSet a [] = []
 removeMSet a ((x,y):t) | a == x && y > 1 = (x,y-1) : t
                        | a == x && y == 1 = t
                        | otherwise = (x,y) : removeMSet a t
+-}
 
 --43) > constroiMSet "aaabccc" = [(’a’,3), (’b’,1), (’c’,3)]
 constroiMSet :: Ord a => [a] -> [(a,Int)]

@@ -1,17 +1,22 @@
+module Ficha3 where
+
 data Hora = H Int Int
             deriving Show
 
 type Etapa = (Hora,Hora)
 type Viagem = [Etapa]
 
---Auxiliares
+---------------------------------------
+---------Auxiliares da Ficha 1---------
+---------------------------------------
+
 --a) testar se um par de inteiros representa uma hora do dia v ́alida;
 horaValida :: Hora -> Bool
 horaValida (H p1 p2) = p1 >= 0 && p1 <= 23 && p2 >= 0 && p2 <= 59
 
 --b) testar se uma hora  ́e ou n ̃ao depois de outra (compara ̧c ̃ao);
 horaTempoDeChegadaSuperior :: Hora -> Hora -> Bool
-horaTempoDeChegadaSuperior (H p1 p2) (H p3 p4) = p1 == p2 && p4 > p3 || p3 > p1 
+horaTempoDeChegadaSuperior (H p1 p2) (H p3 p4) = p1 == p3 && p4 > p2 || p3 > p1 
 
 --c) converter um valor em horas (par de inteiros) para minutos (inteiro);
 converteHoras :: Hora -> Int
@@ -29,6 +34,12 @@ diferencaHoras (H p1 p2) (H p3 p4) = (p1-p3)*60 + (p2-p4)
 adicionarMinutos :: Hora -> Int -> Hora
 adicionarMinutos (H h m) min = converteMinutosHoras (converteHoras (H h m) + min)
 
+---------------------------------------
+---------       Ficha 3       ---------
+---------------------------------------
+
+-- Gestao de informacao em listas
+
 --a) Testar se uma etapa est ́a bem constru ́ıda (i.e., o tempo de chegada  ́e superior ao de partida e as horas s ̃ao v ́alidas).
 etapaBemConstruida :: Etapa -> Bool
 etapaBemConstruida (p1,p2) = horaValida p1 && horaValida p2 && horaTempoDeChegadaSuperior p1 p2 
@@ -36,13 +47,12 @@ etapaBemConstruida (p1,p2) = horaValida p1 && horaValida p2 && horaTempoDeChegad
 --b) Testa se uma viagem est ́a bem constru ́ıda (i.e., se para cada etapa, o tempo de chegada  ́e superior ao de partida, e se a etapa seguinte come ̧ca depois da etapa anterior ter terminado)
 viagemBemConstruida :: Viagem -> Bool
 viagemBemConstruida [] = True
-viagemBemConstruida ((h1,h2):t) = etapaBemConstruida (h1,h2) && viagemBemConstruida t && 
-    (case t of [] -> True
-               (h3,h4):t' -> h3 `horaTempoDeChegadaSuperior` h2)
+viagemBemConstruida [x] = etapaBemConstruida x
+viagemBemConstruida ((x,y):(x1,y1):t) = etapaBemConstruida (x,y) && horaTempoDeChegadaSuperior y x1 && viagemBemConstruida ((x1,y1):t) 
 
 --c) Calcular a hora de partida e de chegada de uma dada viagem. 
 partidaEChegada :: Viagem -> (Hora,Hora)
-partidaEChegada n = (fst (head n), snd (last n)) --fst pega o primeiro elemento do par, snd pega o ultimo elemento do par
+partidaEChegada n = (fst (head n), snd (last n)) --fst pega o primeiro elemento do par, snd pega o ultimo elemento do par * Manipulação de Tuplos
 
 {-
 partidaEChegada :: Viagem -> (Hora,Hora)
@@ -51,18 +61,33 @@ partidaEChegada n = (x,y)
     where (_,y) = last n
 -}
 
+tempoVi :: Viagem -> Hora
+tempoVi [] = H 0 0
+tempoVi ((x,y):t) = converteMinutosHoras (diferencaHoras y x + converteHoras (tempoVi t))
+
+{-
 --d) Dada uma viagem v ́alida, calcular o tempo total de viagem efectiva
 tempoViagemEfetiva :: Viagem -> Hora
 tempoViagemEfetiva [] = H 0 0
 tempoViagemEfetiva ((p1, p2):t) = adicionaHoras (converteMinutosHoras (diferencaHoras p2 p1)) (tempoViagemEfetiva t)
+-}
+tempoViagemEfetiva :: Viagem -> Hora
+tempoViagemEfetiva [] = H 0 0
+tempoViagemEfetiva v = converteMinutosHoras totalMinutos
+    where
+        (H h1 m1) = fst (head v)
+        (H h2 m2) = snd (last v)
+        totalMinutos = (h2*60 + m2) - (h1*60 + m1)
+
 
 adicionaHoras :: Hora -> Hora -> Hora
 adicionaHoras (H p1 p2) (H p3 p4) = H (p1 + p2 + (div (p2+p4) 60)) (mod (p2+p4) 60)
 
 --e) Calcular o tempo total de espera.
 tempoEspera :: Viagem -> Hora
-tempoEspera ((h1,h2):(h3,h4):t) = adicionaHoras (converteMinutosHoras (diferencaHoras h3 h2)) (tempoEspera ((h3,h4):t))
-tempoEspera _ = (H 0 0)
+tempoEspera [] = H 0 0
+tempoEspera [_] = H 0 0
+tempoEspera ((x,y):(x1,y1):t) = converteMinutosHoras (diferencaHoras x1 y + converteHoras (tempoEspera ((x1,y1):t)))
 
 --f) Calcula o tempo total da viagem
 tempoTotalViagem' :: Viagem -> Hora
@@ -114,6 +139,7 @@ dist1 p1 p2 = sqrt ((x1 - x)^2 + (y1-y)^2)
 --a) Defina a fun ̧c ̃ao para calcular o comprimento de uma linha poligona
 calculaComprimento :: Poligonal -> Double
 calculaComprimento [] = 0
+calculaComprimento [_] = 0
 calculaComprimento (x1:x2:t) = (dist1 x1 x2) + calculaComprimento t 
 
 --b) Defina uma fun ̧c ̃ao para testar se uma dada linha poligonal  ́e ou n ̃ao fechada.
@@ -255,7 +281,7 @@ porIdade date tabela = porIdadeAux date (ordena tabela)
 
 porIdadeAux :: Data -> TabDN -> [(Nome,Int)]
 porIdadeAux _ [] = []
-porIdadeAux d ((nh,dh):t) = porIdadeAux d t ++ [(nh, calculaIdade dh d)]
+porIdadeAux d ((n,dn):t) = porIdadeAux d t ++ [(n, calculaIdade d dn)]
 
 --5)
 data Movimento = Credito Float | Debito Float deriving Show

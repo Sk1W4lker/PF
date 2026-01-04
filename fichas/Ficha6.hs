@@ -75,7 +75,7 @@ minimo (Node x e d) = minimo e
 
 --(b) Defina uma fun ̧c ̃ao semMinimo :: Ord a => BTree a -> BTree a que remove o menor elemento de uma  ́arvore bin ́aria de procura n ̃ao vazia.
 semMinimo :: Ord a => BTree a -> BTree a
-semMinimo (Node x Empty d) = d
+semMinimo (Node x Empty d) = x
 semMinimo (Node x e d) = Node x (semMinimo e) d
 
 --(c) Defina uma fun ̧c ̃ao minSmin :: Ord a => BTree a -> (a,BTree a) que calcula, com uma  ́unica travessia da  ́arvore o resultado das duas fun ̧c ̃oes anteriores.
