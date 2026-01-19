@@ -57,6 +57,9 @@ y) representa ]x,y], (FA x y) representa [x,y[ e (Uniao a b) a uni˜ao de conjun
 do termo Uniao (Uniao (AA 4.2 5.5) (AF 3.1 7.0)) (FF (-12.3) 30.0) seja ((]4.2,5.5[ U ]3.1,7.0]) U [-12.3,30.0])
 -}
 
+instance Show SReais where
+    show = apresentacao
+
 data SReais = AA Double Double | FF Double Double | AF Double Double | FA Double Double | Uniao SReais SReais
 
 apresentacao :: SReais -> String
@@ -81,19 +84,25 @@ pertence d (Uniao s s1) = if pertence d s || pertence d s1 then True else False
 c) Defina a fun¸c˜ao tira :: Double-> SReais-> SReais que retira um elemento de um con
 junto.
 -}
-tira :: Double-> SReais-> SReais
-tira d (AA a b) | d <= a || d >= b = AA a b
-                | otherwise = Uniao (AA a d) (AA d b)
-tira d (AF a b) | d <= a || d > b = AA a b
-                | d == b = AA a b
-                | otherwise = Uniao (AA a d) (AF a b)
-tira d (FA a b) | d < a || d >= b = FA a b
-                | d == b = AA a b
-                | otherwise = Uniao (FA a d) (AA a b)
-tira d (FF a b) | d < a || d > b = AA a b
-                | d == a = AF a b
-                | d == b = FA a b
-                | otherwise = Uniao (FA a d) (AF a b)                
+tira :: Double -> SReais -> SReais
+tira x (AA a b)
+  | x <= a || x >= b = AA a b
+  | otherwise = Uniao (AA a x) (AA x b)
+tira x (FF a b)
+  | x < a || x > b = FF a b
+  | x == a         = FA a b          -- abrir o lado esquerdo
+  | x == b         = AF a b          -- abrir o lado direito
+  | otherwise      = Uniao (FA a x) (AF x b)
+tira x (AF a b)
+  | x <= a || x > b = AF a b
+  | x == b          = AA a b         -- tirar extremo fechado
+  | otherwise       = Uniao (AA a x) (AF x b)
+tira x (FA a b)
+  | x < a || x >= b = FA a b
+  | x == a          = AA a b         -- tirar extremo fechado
+  | otherwise       = Uniao (FA a x) (AA x b)
+tira x (Uniao s1 s2) = Uniao (tira x s1) (tira x s2)
+              
 
 
 --3. Considere o seguinte tipo para representar ´arvores irregulares (rose trees).
@@ -105,7 +114,22 @@ uma ´arvore e d´a a lista de valores por onde esse caminho passa. Se o caminho
 a fun¸c˜ao deve retornar Nothing. O caminho ´e representado por uma lista de inteiros (1 indica
 seguir pela primeira sub-´arvore, 2 pela segunda, etc)
 -}
-percorre :: [Int]-> RTree a-> Maybe [a]
-percorre [] (R x _) = Just [x]
-percorre (h:t) (R x l) | h <= 0 || h > length l = Nothing
-                       | otherwise =
+percorre :: [Int] -> RTree a -> Maybe [a]
+percorre [] (R v _) = Just [v]
+percorre (i:is) (R v filhos) | i < 1 || i > length filhos = Nothing
+                             | otherwise = case percorre is (filhos !! (i-1)) of
+                                    Nothing -> Nothing
+                                    Just vs -> Just (v : vs)
+{-
+(b) Defina a fun¸c˜ao procura :: Eq a => a-> RTree a-> Maybe [Int] que procura um ele
+mento numa ´arvore e, em caso de sucesso, calcula o caminho correspondente.
+-}
+
+procura :: Eq a => a -> RTree a -> Maybe [Int]
+procura x (R y subArvores) | x == y = Just []  -- encontrou na raiz, caminho vazio
+                           | otherwise = procuraLista x subArvores 1
+    where procuraLista :: Eq a => a -> [RTree a] -> Int -> Maybe [Int]
+          procuraLista x [] _ = Nothing
+          procuraLista x (arv:resto) n = case procura x arv of
+                                            Just caminho -> Just (n : caminho)
+                                            Nothing -> procuraLista x resto (n + 1)

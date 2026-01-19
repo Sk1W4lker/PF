@@ -202,7 +202,7 @@ normaliza ((x,y):t) = normalizaAux (x,y) (normaliza t)
 soma :: Polinomio -> Polinomio -> Polinomio
 soma p [] = p
 soma [] p = p
-soma ((c,g):t) p = somaAux (c,g) (soma t p)
+soma (h:t) p = soma t (somaAux h p)
 
 somaAux :: Monomio -> Polinomio -> Polinomio
 somaAux m [] = [m]

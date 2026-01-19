@@ -75,8 +75,12 @@ difMaior ((p1,a1):t)
     where (x,y) = difMaior t
 -}
 
+type TabAbrev = [(Palavra,Abreviatura)]
+type Palavra = String
+type Abreviatura = String
+
 difMaior :: TabAbrev -> (Palavra,Int)
-difMaior (h:t) = difAux h t
+difMaior (h:t) = difAux h (difMaior t)
 
 difAux :: (Palavra,Abreviatura) -> [(Palavra,Abreviatura)] -> (Palavra,Int)
 difAux (p,a) [] = (p,(length p - length a))

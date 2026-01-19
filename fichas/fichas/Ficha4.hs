@@ -140,3 +140,7 @@ intToStrAux :: Integer -> String -> String
 intToStrAux 0 acc = acc
 intToStrAux n acc = intToStrAux (div n 10) (intToDigit (fromInteger (mod n 10)) : acc)
 
+intToStr :: Integer -> String
+intToStr 0 = "0"
+intToStr l = foldl(\acc x -> intToStr (div x 10) (fromInteger (mod nx 10))) "" l
+

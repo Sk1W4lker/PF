@@ -268,7 +268,7 @@ True
 --d) Defina a fun ̧c ̃ao ordena :: TabDN -> TabDN, que ordena uma tabela de datas de nascimento, por ordem crescente das datas de nascimento.
 ordena :: TabDN -> TabDN 
 ordena [] = []
-ordena ((n,d):t) = ordenaAux (n,d) (ordena t)
+ordena (h:t) = ordena (ordenaAux h t)
 
 ordenaAux :: (Nome, Data) -> TabDN -> TabDN
 ordenaAux (n,d) [] = [(n,d)]
